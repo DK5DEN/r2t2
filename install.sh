@@ -32,6 +32,14 @@ if ! grep -qi r2t2 /proc/device-tree/model 2>/dev/null && [ -z "${R2T2_TROTZDEM:
   ende "Das Grundsystem des R2T2 läuft hier nicht (Abbild von https://github.com/DK5DEN/r2t2/releases)."
 fi
 
+# The R2T2 has no clock of its own: before the time is set from the network, HTTPS fails.
+n=0
+while [ ! -e /run/systemd/timesync/synchronized ] && [ $n -lt 30 ]; do
+  [ $n = 0 ] && echo "Warte auf die Uhrzeit aus dem Netz ..."
+  n=$((n + 1)); sleep 2
+done
+[ -e /run/systemd/timesync/synchronized ] || echo "Die Uhrzeit ist nicht gestellt (kein Zeitserver erreichbar?), Downloads können deshalb scheitern."
+
 sagen "Hardware-Schicht r2t2-hw $HW_VERSION"
 # /tmp is 64 MB of RAM on the base image: the download goes to the card
 T=$(mktemp -d -p /var/tmp)

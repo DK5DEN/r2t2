@@ -25,6 +25,8 @@ afu-remote itself is generic for all devices and does not live in this repositor
 
        /usr/lib/apt/apt-helper download-file https://raw.githubusercontent.com/DK5DEN/r2t2/main/install.sh /var/tmp/install.sh && sh /var/tmp/install.sh
 
+   If the download fails right after switching on, wait a minute: the R2T2 has no clock of its
+   own and gets the time from the network first.
 4. Open the address the installer prints in a browser, enter the code and set the station up.
    After that afu-remote runs as a service and starts the receiver.
 
