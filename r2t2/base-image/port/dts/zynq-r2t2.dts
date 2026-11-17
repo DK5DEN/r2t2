@@ -1,0 +1,162 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * R2T2 SDR (Zynq Z7020), device tree for the new base image, kernel 6.12.
+ * Rebuilt from the tree inside image.ub of device 1 (Buehl, 2026-11-17);
+ * ZedBoard leftovers (HDMI, VDMA, audio, framebuffer, clkgen) removed.
+ *
+ * FPGA registers without a kernel driver are reached from userspace through
+ * /dev/mem and are deliberately not described here:
+ *   0x50000000            TX cfg register     0x50010000..0x50090000  RX cfg registers
+ *   0x51000000            status register     0xf8000240              FPGA reset (SLCR)
+ */
+/dts-v1/;
+#include "zynq-7000.dtsi"
+
+/ {
+	model = "DARC R2T2 SDR";
+	compatible = "darc,r2t2", "xlnx,zynq-7000";
+
+	aliases {
+		ethernet0 = &gem0;
+		serial0 = &uart1;
+		mmc0 = &sdhci0;
+		/* keep the bus numbers of the old system: Si5344 sits on /dev/i2c-3 */
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &fpga_i2c;
+		i2c3 = &mux_i2c0;
+		i2c4 = &mux_i2c1;
+		i2c5 = &mux_i2c2;
+		i2c6 = &mux_i2c3;
+	};
+
+	/* as in the old tree: 896 MB */
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x38000000>;
+	};
+
+	chosen {
+		bootargs = "console=ttyPS0,115200 root=/dev/mmcblk0p2 rw rootfstype=ext4 rootwait";
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+&clkc {
+	ps-clk-frequency = <33333333>;
+	/* the four clocks into the FPGA must stay on */
+	fclk-enable = <0xf>;
+};
+
+&uart1 {
+	status = "okay";
+};
+
+&sdhci0 {
+	status = "okay";
+};
+
+&gem0 {
+	status = "okay";
+	phy-mode = "rgmii-id";
+	phy-handle = <&ethernet_phy>;
+
+	ethernet_phy: ethernet-phy@0 {
+		reg = <0>;
+		device_type = "ethernet-phy";
+		marvell,reg-init = <0x3 0x10 0xff00 0x1e 0x3 0x11 0xfff0 0xa>;
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+&i2c1 {
+	status = "okay";
+	clock-frequency = <100000>;
+
+	i2c-mux@70 {
+		compatible = "nxp,pca9545";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x70>;
+
+		mux_i2c0: i2c@0 {	/* Si5344 clock chip, 0x6b */
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0>;
+		};
+		mux_i2c1: i2c@1 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <1>;
+		};
+		mux_i2c2: i2c@2 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <2>;
+		};
+		mux_i2c3: i2c@3 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <3>;
+		};
+	};
+};
+
+/* PS watchdog: the old tree used a compatible the driver never matched */
+&watchdog0 {
+	status = "okay";
+	reset-on-timeout;
+	timeout-sec = <10>;
+};
+
+&amba {
+	/* sample stream FPGA <-> rad0, driver drivers/net/r2t2 */
+	r2t2_dma: dma@40400000 {
+		compatible = "darc,r2t2-dma";
+		reg = <0x40400000 0x10000>;
+		xlnx,include-sg;
+
+		dma-channel-mm2s {
+			compatible = "xlnx,axi-dma-mm2s-channel";
+			interrupts = <0 30 4>;
+			xlnx,datawidth = <0x20>;
+			xlnx,device-id = <0x0>;
+		};
+		dma-channel-s2mm {
+			compatible = "xlnx,axi-dma-s2mm-channel";
+			interrupts = <0 31 4>;
+			xlnx,datawidth = <0x20>;
+			xlnx,device-id = <0x0>;
+		};
+	};
+
+	/* DAC SPI, attenuators, PGA (bit-banged); same defaults as the old tree */
+	fpga_gpio: gpio@41200000 {
+		compatible = "xlnx,xps-gpio-1.00.a";
+		reg = <0x41200000 0x10000>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		clocks = <&clkc 15>;
+		xlnx,all-inputs = <0x0>;
+		xlnx,all-outputs = <0x0>;
+		xlnx,dout-default = <0x0>;
+		xlnx,gpio-width = <0x20>;
+		xlnx,interrupt-present = <0x0>;
+		xlnx,is-dual = <0x0>;
+		xlnx,tri-default = <0xffffffff>;
+	};
+
+	/* I2C core in the FPGA; clock assumed to be FCLK0, to be checked on the device */
+	fpga_i2c: i2c@41600000 {
+		compatible = "xlnx,xps-iic-2.00.a";
+		reg = <0x41600000 0x10000>;
+		interrupts = <0 29 4>;
+		clocks = <&clkc 15>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+	};
+};

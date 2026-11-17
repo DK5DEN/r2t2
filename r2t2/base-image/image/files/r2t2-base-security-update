@@ -1,0 +1,8 @@
+#!/bin/sh
+# Installs Debian security updates only (no unattended-upgrades, no Python).
+set -e
+export DEBIAN_FRONTEND=noninteractive
+OPT="-o Dir::Etc::SourceList=/dev/null -o Dir::Etc::SourceParts=/etc/apt/security.d -o APT::Get::List-Cleanup=0"
+apt-get $OPT -q update
+apt-get $OPT -q -y -o Dpkg::Options::=--force-confold upgrade
+apt-get clean

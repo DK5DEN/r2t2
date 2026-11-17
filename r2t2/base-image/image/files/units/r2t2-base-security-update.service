@@ -1,0 +1,8 @@
+[Unit]
+Description=R2T2 base: Debian security updates
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/r2t2-base-security-update

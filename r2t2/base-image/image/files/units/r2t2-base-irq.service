@@ -1,0 +1,9 @@
+[Unit]
+Description=R2T2 base: sample DMA interrupt on the second core
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/r2t2-base-irq
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+#!/bin/sh
+# First start: grow the root partition and its file system to the whole card.
+set -e
+DEV=/dev/mmcblk0
+PART=2
+echo ", +" | sfdisk --force --no-reread --no-tell-kernel -N $PART $DEV
+partx -u -n $PART $DEV
+resize2fs ${DEV}p$PART
+mkdir -p /var/lib/r2t2-base
+date -u +%FT%TZ > /var/lib/r2t2-base/expanded

@@ -1,0 +1,11 @@
+[Unit]
+Description=R2T2 base: SSH host keys and key from the boot partition
+After=local-fs.target
+Before=ssh.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/r2t2-base-sshkey
+
+[Install]
+WantedBy=multi-user.target

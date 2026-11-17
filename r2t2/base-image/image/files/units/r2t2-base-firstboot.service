@@ -1,0 +1,11 @@
+[Unit]
+Description=R2T2 base: grow root file system to the whole card
+ConditionPathExists=!/var/lib/r2t2-base/expanded
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/r2t2-base-firstboot
+
+[Install]
+WantedBy=multi-user.target

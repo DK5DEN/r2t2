@@ -1,0 +1,6 @@
+#!/bin/sh
+# Move the sample DMA interrupt to the second core; Ethernet and SD stay on the first.
+[ -d /sys/devices/system/cpu/cpu1 ] || exit 0
+for n in $(awk '/xilinx-dma-controller/ {sub(":","",$1); print $1}' /proc/interrupts); do
+    echo 2 > /proc/irq/$n/smp_affinity || true
+done

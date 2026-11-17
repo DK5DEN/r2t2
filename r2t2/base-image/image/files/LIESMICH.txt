@@ -1,0 +1,17 @@
+R2T2 Grundsystem (Debian, ohne R2T2-Software)
+
+1. Karte in das R2T2 stecken, Netzwerk anschliessen, einschalten.
+2. Das Geraet holt sich per DHCP eine Adresse (Name: r2t2),
+   zusaetzlich ist es unter 192.168.1.99 erreichbar.
+3. Anmelden:  ssh root@<adresse>
+   Benutzer: root   Passwort: r2t2
+   Beim ersten Anmelden muss ein neues Passwort gesetzt werden,
+   danach neu anmelden.
+
+Anmeldung mit SSH-Schluessel (optional): den eigenen oeffentlichen
+Schluessel als Datei "authorized_keys" (oder "authorized_keys.txt")
+in dieses Laufwerk legen, er wird bei jedem Start uebernommen.
+Liegt ein Schluessel hier, bevor das Passwort geaendert wurde, wird
+das Standardpasswort abgeschaltet (Anmeldung dann nur per Schluessel).
+
+boot.bin und image.ub nicht loeschen, sonst startet das Geraet nicht.

@@ -1,0 +1,5 @@
+# armhf userland (runs through qemu-user binfmt on the build host)
+FROM debian:trixie
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    debootstrap e2fsprogs dosfstools mtools fdisk xz-utils ca-certificates \
+    && rm -rf /var/lib/apt/lists/*

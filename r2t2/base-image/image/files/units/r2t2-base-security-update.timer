@@ -1,0 +1,10 @@
+[Unit]
+Description=R2T2 base: daily Debian security updates
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=6h
+Persistent=true
+
+[Install]
+WantedBy=timers.target
