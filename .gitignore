@@ -1,8 +1,8 @@
-r2t2/base-image/kernel/
-r2t2/base-image/src/
-r2t2/base-image/out/
-r2t2/base-image/out-image/
-r2t2/base-image/build/
-r2t2/base-image/test/sd.img
-r2t2/base-image/test/testkey*
+base-image/kernel/
+base-image/src/
+base-image/out/
+base-image/out-image/
+base-image/build/
+base-image/test/sd.img
+base-image/test/testkey*
 *.log
