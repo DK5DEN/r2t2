@@ -2,7 +2,7 @@
 
 SD card image for the DARC **R2T2** (Zynq Z7020): boot chain, kernel 6.12 and a minimal
 Debian 13 (armhf). It contains **no R2T2 software**. Hardware layer, `r2t2sdr` and afu-remote
-are installed afterwards by the installer (not in this repository yet).
+are installed afterwards by the installer, see the [README](../README.md) of the repository.
 
 **State 2026-11-17: built and started in QEMU only. Not tested on a device yet.**
 
@@ -19,6 +19,8 @@ Login with a key instead: put your public key as `authorized_keys` (or `authoriz
 on the first partition of the card (FAT, visible under Windows too). It is taken over at every
 start. If the key is there before the default password was changed, the default password is
 switched off and only the key works; `passwd` sets a password again.
+
+Then install the R2T2 software with the installer, see the [README](../README.md).
 
 ## What is in it
 
@@ -52,11 +54,11 @@ switched off and only the key works; `passwd` sets a password again.
 
     # image -> out-image/   (armhf userland runs through qemu-user binfmt on the build host)
     docker build -t r2t2-image-build:trixie -f docker/Dockerfile.image docker
-    docker run --rm -v $PWD:/work -v /path/to/dir:/geraet1:ro -e OWNER=$(id -u):$(id -g) \
+    docker run --rm -v $PWD:/work -e OWNER=$(id -u):$(id -g) \
         r2t2-image-build:trixie /work/image/build-image.sh
 
-`/path/to/dir` has to contain `boot/boot.bin`, copied from the first partition of the SD card
-of an R2T2. It is not part of this repository.
+`boot.bin` comes from [`boot/`](boot/), so no original SD card is needed. To use the one of
+your own device instead, add `-v /path/to/dir:/geraet1:ro` with `boot/boot.bin` in that directory.
 
 ## Test without a device
 

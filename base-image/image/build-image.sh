@@ -65,7 +65,9 @@ rm -rf $R/var/lib/apt/lists/* $R/var/cache/apt/*.bin $R/var/log/*.log $R/var/log
 chroot $R dpkg-query -W -f '${Package} ${Version} ${Installed-Size}\n' > $O/packages.txt
 
 # --- boot partition content
-cp /geraet1/boot/boot.bin $B/boot.bin
+# boot.bin of the repository; another one can be mounted to /geraet1/boot/boot.bin
+BOOTBIN=/work/boot/boot.bin; [ -f /geraet1/boot/boot.bin ] && BOOTBIN=/geraet1/boot/boot.bin
+cp $BOOTBIN $B/boot.bin
 cp /work/out/image.ub $B/image.ub
 sed 's/$/\r/' $F/LIESMICH.txt > $B/LIESMICH.txt
 

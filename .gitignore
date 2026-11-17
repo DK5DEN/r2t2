@@ -6,3 +6,4 @@ base-image/build/
 base-image/test/sd.img
 base-image/test/testkey*
 *.log
+hw/r2t2-hw
