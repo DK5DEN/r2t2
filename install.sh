@@ -10,8 +10,8 @@
 # Running it again updates r2t2-hw and repairs the services; afu-remote updates itself.
 set -eu
 
-HW_VERSION=1.0.0
-HW_SHA256=e001035d2b2de071ea395c5e7ebaddfacb76231693100c10dfcbba8e8cb5a976
+HW_VERSION=1.0.1
+HW_SHA256=5f53615374b9d3aedc5638cbb0647ef6dd50e5343f0df6bb3793dfa267e8f514
 HW_URL=${HW_URL:-https://github.com/DK5DEN/r2t2/releases/download/hw-$HW_VERSION/r2t2-hw-armhf}
 AFU_URL=${AFU_URL:-https://afu.tools/downloads}
 DIR=/opt/afu-remote

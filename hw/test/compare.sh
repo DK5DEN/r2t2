@@ -37,5 +37,11 @@ SKIPA=13 SKIP=1 check "tx freq and rate" -s 122.88e6 -t 7e6 -b 96000
 for c in 122.88e6 125e6 62.5e6; do SKIPA=25 SKIP=10 check "clock $c" -s $c -u; done
 for g in -10 -9 0 13 32; do check "gain $g" -g $g -k $g; done
 for a in 0 1 17 31; do check "att $a" -i $a -j $a; done
+# receiver frequency: not compared with the old tool, which writes the register of the
+# bitstream of June 2016. Expected is 0x53000000 + 4 * rx, as r2t2srv writes it.
+rm -f $T/b.log
+SHIM_LOG=$T/b.log LD_PRELOAD=$T/shim.so $T/new -c 7 -r 14e6 >/dev/null 2>&1 || true
+if [ "$(cat $T/b.log)" = "M 5300001c 074aaaaa" ]; then echo "ok      rx freq"
+else echo "DIFFER  rx freq: $(cat $T/b.log)"; fail=1; fi
 rm -rf $T
 exit $fail

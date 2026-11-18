@@ -29,14 +29,15 @@
 #include <unistd.h>
 #include "tables.h"
 
-#define VERSION "1.0.0"
+#define VERSION "1.0.1"
 #define NELEM(a) (sizeof(a) / sizeof((a)[0]))
 
 /* ---- registers in the FPGA and the PS (through /dev/mem) */
 #define REG_TX_DIVIDER      0x50000000u
 #define REG_TX_FREQ         0x50000004u
 #define REG_RX_DIVIDER_BASE 0x50010000u
-#define REG_RX_FREQ_BASE    0x50010004u
+#define REG_RX_FREQ_BASE    0x53000000u /* + 4 * rx, as r2t2srv and r2t2sdr write it; the bitstream of June 2016 had 0x50010004 + 0x10000 * rx */
+#define RX_COUNT            8
 #define REG_RX_OFFSET       0x00010000u
 #define SLCR_FPGA_RST       0xf8000240u
 #define PRE_DIVIDER         (16 * 2)
@@ -399,7 +400,8 @@ static void usage(void)
          "options of the original tool r2t2:\n"
          "  -s rate  sample clock      -u  init clock chip     -p  init ADC and DAC\n"
          "  -g/-k dB gain ADC 1/2 (-10..32)   -i/-j dB attenuator ADC 1/2 (0..31)\n"
-         "  -c rx  -r freq  -a rate    receiver in the old FPGA register layout\n"
+         "  -c rx  -r freq              receiver 0..7, frequency (register 0x53000000 + 4 * rx)\n"
+         "  -a rate                    receiver rate, old FPGA register layout only\n"
          "  -t freq  -b rate           transmitter\n"
          "  -d reg  -l count  -w val   read and write a register");
 }
@@ -423,7 +425,10 @@ int main(int argc, char *argv[])
     while ((c = getopt(argc, argv, "+r:a:b:t:s:pg:k:i:j:ud:w:l:hc:")) != -1) {
         switch (c) {
         case 'c': rx = num(optarg); if (rx < 0 || rx > 8) rx = 1; break;
-        case 'r': set_mem(REG_RX_FREQ_BASE + REG_RX_OFFSET * rx, phase_inc(num(optarg))); break;
+        case 'r':
+            if (rx >= RX_COUNT) { fprintf(stderr, "r2t2-hw: receiver %d: there are 0..%d\n", rx, RX_COUNT - 1); errors++; break; }
+            set_mem(REG_RX_FREQ_BASE + 4 * rx, phase_inc(num(optarg)));
+            break;
         case 'a': set_rx_rate(rx, num(optarg)); break;
         case 'b': set_tx_rate(num(optarg)); break;
         case 't': set_mem(REG_TX_FREQ, phase_inc(num(optarg))); break;
